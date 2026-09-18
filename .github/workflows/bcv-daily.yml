@@ -1,0 +1,50 @@
+# Guarda este archivo como: .github/workflows/bcv-daily.yml
+# dentro de un repositorio de GitHub (puede ser privado).
+#
+# Qué hace:
+# 1. Corre todos los días a las 13:00 UTC (~9:00am Venezuela) — ajusta el cron si quieres otra hora
+# 2. Ejecuta bcv_scraper.py
+# 3. Si bcv_rates.csv cambió, hace commit y push automático al repo
+#
+# También puedes lanzarlo manualmente desde la pestaña "Actions" de GitHub
+# (gracias a "workflow_dispatch").
+
+name: BCV Daily Scraper
+
+on:
+  schedule:
+    - cron: "0 13 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install requests openpyxl xlrd==1.2.0
+
+      - name: Run scraper
+        run: python bcv_scraper.py
+
+      - name: Commit updated data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if [ -f bcv_rates.csv ] || [ -f rates.json ]; then
+            git add bcv_rates.csv rates.json 2>/dev/null || true
+            git diff --staged --quiet || git commit -m "Actualiza tasas BCV $(date -u +'%Y-%m-%d')"
+            git push
+          else
+            echo "No se generaron archivos todavia (no hubo datos nuevos que guardar). Nada que subir."
+          fi

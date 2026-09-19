@@ -2,7 +2,7 @@
 # dentro de un repositorio de GitHub (puede ser privado).
 #
 # Qué hace:
-# 1. Corre todos los días a las 13:00 UTC (~9:00am Venezuela) — ajusta el cron si quieres otra hora
+# 1. Corre todos los días a las 03:00 UTC (23:00 hora Venezuela) — ajusta el cron si quieres otra hora
 # 2. Ejecuta bcv_scraper.py
 # 3. Si bcv_rates.csv cambió, hace commit y push automático al repo
 #
@@ -13,7 +13,7 @@ name: BCV Daily Scraper
 
 on:
   schedule:
-    - cron: "0 13 * * *"
+    - cron: "0 3 * * *"
   workflow_dispatch: {}
 
 permissions:
